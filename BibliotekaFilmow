@@ -1,0 +1,92 @@
+import random
+from datetime import date
+
+print("Biblioteka Filmów")
+
+class Film:
+    def __init__(self, title, year, genre, views):
+        self.title = title
+        self.year = year
+        self.genre = genre
+        self.views = views
+
+    def play(self):
+        self.views += 1
+
+    def __str__(self):
+        return f"{self.title} ({self.year})"
+
+class Serial:
+    def __init__(self, title, year, genre, episode_number, season_number, views):
+        self.title = title
+        self.year = year
+        self.genre = genre
+        self.episode_number = episode_number
+        self.season_number = season_number
+        self.views = views
+
+    def play(self):
+        self.views += 1
+
+    def __str__(self):
+        return f"{self.title} S{self.season_number:02}E{self.episode_number:02}"
+
+def get_movies(library):
+    return sorted([item for item in library if isinstance(item, Film)], key=lambda x: x.title)
+
+def get_series(library):
+    return sorted([item for item in library if isinstance(item, Serial)], key=lambda x: x.title)
+
+def search(library, title):
+    for item in library:
+        if item.title == title:
+            return item
+    return None
+
+def generate_views(library):
+    item = random.choice(library)
+    item.views += random.randint(1, 100)
+
+def top_titles(library, content_type=None, count=3):
+    if content_type == "movies":
+        items = get_movies(library)
+    elif content_type == "series":
+        items = get_series(library)
+    else:
+        items = library
+    return sorted(items, key=lambda x: x.views, reverse=True)[:count]
+
+def add_full_seasons(library, title, year, genre, season_number, number_of_episodes):
+    for episode_number in range(1, number_of_episodes + 1):
+        library.append(Serial(title, year, genre, episode_number, season_number, 0))
+
+def get_series_episode_count(library, title):
+    count = 0
+    for item in library:
+        if isinstance(item, Serial) and item.title == title:
+            count += 1
+    return count
+
+def main():
+    library = []
+
+    # Wypełnij bibliotekę
+    library.append(Film("Pulp Fiction", 1994, "Crime", 0))
+    library.append(Film("The Shawshank Redemption", 1994, "Drama", 0))
+    library.append(Serial("The Simpsons", 1989, "Animation", 1, 1, 0))
+    library.append(Serial("Friends", 1994, "Comedy", 1, 1, 0))
+    add_full_seasons(library, "The Simpsons", 1989, "Animation", 2, 22)
+    add_full_seasons(library, "Friends", 1994, "Comedy", 2, 24)
+
+    # Generuj odtworzenia
+    for _ in range(10):
+        generate_views(library)
+
+    # Wyświetl najpopularniejsze filmy i seriale
+    today = date.today().strftime("%d.%m.%Y")
+    print(f"Najpopularniejsze filmy i seriale dnia {today}")
+    for title in top_titles(library, count=3):
+        print(title)
+
+if __name__ == "__main__":
+    main()
